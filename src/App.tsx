@@ -18,6 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -32,6 +38,8 @@ import {
   Users,
   Zap,
   AlertCircle,
+  Check,
+  Settings,
 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import parseLLMJson from '@/utils/jsonParser'
@@ -113,6 +121,48 @@ const statusBgColors = {
   submitted: 'bg-emerald-50 border-emerald-200',
   pending: 'bg-amber-50 border-amber-200',
   no_response: 'bg-red-50 border-red-200',
+}
+
+// Mock analytics data
+const mockAnalyticsData: AnalyticsResponse = {
+  query_answer: 'The marketing team has shown strong performance this week with increasing MQL generation and high engagement rates across all campaigns.',
+  key_metrics: {
+    average_mql_per_member: 71.3,
+    growth_rate: 18.5,
+    response_time_avg: '2.1 hours',
+    campaign_effectiveness: 87.5,
+  },
+  performance_analysis: {
+    top_performers: [
+      { name: 'Sarah Chen', score: 95 },
+      { name: 'Marcus Johnson', score: 88 },
+    ],
+    under_performing: [
+      { name: 'David Kim', area: 'No submissions - needs follow-up' },
+    ],
+    team_trends: [
+      'Email campaigns showing 23% improvement over last week',
+      'LinkedIn outreach gaining momentum with 5 new partnerships',
+      'Webinar attendance up 12% with better follow-up rates',
+    ],
+  },
+  insights: [
+    'Peak MQL generation occurs on Wednesdays and Thursdays',
+    'Team response rate has improved to 85.7% from 78% last week',
+    'Campaign diversity is driving higher conversion rates',
+  ],
+  recommendations: [
+    'Focus on high-performing campaign types (email and LinkedIn)',
+    'Implement daily stand-ups to track progress in real-time',
+    'Schedule follow-up engagement for pending leads within 24 hours',
+    'Create case studies from top performer strategies for team learning',
+  ],
+  confidence: 0.92,
+  metadata: {
+    analysis_timestamp: new Date().toISOString(),
+    data_sources: ['Slack', 'CRM', 'Analytics Platform'],
+    processing_time: '1.8s',
+  },
 }
 
 // Mock initial data
@@ -432,6 +482,227 @@ function ChatPanel({
   )
 }
 
+// Analytics Insights Panel Component
+function AnalyticsInsightsPanel({ analytics }: { analytics: AnalyticsResponse }) {
+  return (
+    <div className="space-y-6">
+      {/* Key Metrics Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="border border-gray-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Avg MQL per Member</p>
+                <p className="text-2xl font-bold text-gray-900 mt-2">
+                  {analytics.key_metrics.average_mql_per_member.toFixed(1)}
+                </p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-gray-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Growth Rate</p>
+                <p className="text-2xl font-bold text-green-600 mt-2">
+                  +{analytics.key_metrics.growth_rate.toFixed(1)}%
+                </p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-gray-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Avg Response Time</p>
+                <p className="text-2xl font-bold text-gray-900 mt-2">
+                  {analytics.key_metrics.response_time_avg}
+                </p>
+              </div>
+              <Zap className="h-8 w-8 text-yellow-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-gray-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Campaign Effectiveness</p>
+                <p className="text-2xl font-bold text-blue-600 mt-2">
+                  {analytics.key_metrics.campaign_effectiveness.toFixed(1)}%
+                </p>
+              </div>
+              <Zap className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Performance Analysis */}
+      <Card className="border border-gray-200">
+        <CardHeader>
+          <CardTitle>Performance Analysis</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Top Performers */}
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-3">Top Performers</h4>
+            <div className="space-y-2">
+              {analytics.performance_analysis.top_performers.map((performer) => (
+                <div key={performer.name} className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                  <span className="font-medium text-gray-900">{performer.name}</span>
+                  <Badge className="bg-emerald-600">Score: {performer.score}</Badge>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Under-performing */}
+          {analytics.performance_analysis.under_performing.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Areas Needing Attention</h4>
+              <div className="space-y-2">
+                {analytics.performance_analysis.under_performing.map((item) => (
+                  <div key={item.name} className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
+                    <div>
+                      <span className="font-medium text-gray-900">{item.name}</span>
+                      <p className="text-xs text-gray-600 mt-1">{item.area}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Team Trends */}
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-3">Team Trends</h4>
+            <div className="space-y-2">
+              {analytics.performance_analysis.team_trends.map((trend, idx) => (
+                <div key={idx} className="flex gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
+                  <span className="text-sm text-gray-700">{trend}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Insights & Recommendations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-base">Key Insights</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {analytics.insights.map((insight, idx) => (
+                <div key={idx} className="flex gap-3">
+                  <AlertCircle className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-gray-700">{insight}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-base">Recommendations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {analytics.recommendations.map((rec, idx) => (
+                <div key={idx} className="flex gap-3">
+                  <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-gray-700">{rec}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+// Settings Modal Component
+function SettingsModal() {
+  const [open, setOpen] = useState(false)
+  const [slackWebhook, setSlackWebhook] = useState('https://hooks.slack.com/...')
+  const [scheduleTime, setScheduleTime] = useState('09:00')
+  const [frequency, setFrequency] = useState('daily')
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault()
+    setOpen(false)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="gap-2">
+          <Settings className="h-4 w-4" />
+          Settings
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md">
+        <DialogTitle>Dashboard Settings</DialogTitle>
+        <DialogDescription>Configure Slack integration and collection schedule</DialogDescription>
+        <form onSubmit={handleSave} className="space-y-4">
+          <div>
+            <label className="text-sm font-medium text-gray-700">Slack Webhook URL</label>
+            <Input
+              value={slackWebhook}
+              onChange={(e) => setSlackWebhook(e.target.value)}
+              placeholder="https://hooks.slack.com/..."
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700">Collection Frequency</label>
+            <Select value={frequency} onValueChange={setFrequency}>
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="custom">Custom</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700">Schedule Time</label>
+            <Input
+              type="time"
+              value={scheduleTime}
+              onChange={(e) => setScheduleTime(e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" className="bg-blue-500 hover:bg-blue-600">
+              Save Settings
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 // Add Employee Dialog Component
 function AddEmployeeDialog() {
   const [open, setOpen] = useState(false)
@@ -504,18 +775,22 @@ function AddEmployeeDialog() {
 // Main App Component
 export default function App() {
   const [data, setData] = useState<AgentResponse>(mockInitialData)
+  const [analytics, setAnalytics] = useState<AnalyticsResponse>(mockAnalyticsData)
   const [loading, setLoading] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState('data')
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
   const [selectedMember, setSelectedMember] = useState('all')
+  const [selectedMetric, setSelectedMetric] = useState('all')
   const [error, setError] = useState<string | null>(null)
 
-  // Refresh data from agent
+  // Refresh data from both agents
   const refreshData = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch('https://agent-prod.studio.lyzr.ai/v3/inference/chat/', {
+      // Call Data Collection Agent
+      const dataResponse = await fetch('https://agent-prod.studio.lyzr.ai/v3/inference/chat/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -529,20 +804,38 @@ export default function App() {
         }),
       })
 
-      const responseText = await response.text()
-      const parsedData = parseLLMJson(responseText, mockInitialData)
+      const dataText = await dataResponse.text()
+      const parsedData = parseLLMJson(dataText, mockInitialData)
 
-      // Ensure response has result property
       if (parsedData?.result) {
         setData(parsedData)
       } else if (parsedData?.collection_status) {
-        // Handle direct result format
         setData({ ...mockInitialData, result: parsedData })
-      } else {
-        setError('Failed to parse agent response')
+      }
+
+      // Call Analytics Agent
+      const analyticsResponse = await fetch('https://agent-prod.studio.lyzr.ai/v3/inference/chat/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': 'sk-default-obhGvAo6gG9YT9tu6ChjyXLqnw7TxSGY',
+        },
+        body: JSON.stringify({
+          user_id: `user-${Math.random().toString(36).substr(2, 9)}`,
+          agent_id: '68fd2d01058210757bf63ffb',
+          session_id: `session-${Math.random().toString(36).substr(2, 9)}`,
+          message: 'Analyze the marketing metrics and provide insights on team performance, top performers, trends, and actionable recommendations.',
+        }),
+      })
+
+      const analyticsText = await analyticsResponse.text()
+      const parsedAnalytics = parseLLMJson(analyticsText, mockAnalyticsData)
+
+      if (parsedAnalytics?.key_metrics) {
+        setAnalytics(parsedAnalytics)
       }
     } catch (err) {
-      setError('Failed to fetch data from agent')
+      setError('Failed to fetch data from agents')
       console.error(err)
     } finally {
       setLoading(false)
@@ -586,6 +879,8 @@ export default function App() {
 
               <AddEmployeeDialog />
 
+              <SettingsModal />
+
               <Button
                 onClick={refreshData}
                 disabled={loading}
@@ -626,113 +921,129 @@ export default function App() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Metrics Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <MetricCard
-            title="Total MQLs"
-            value={metrics.total_mqls}
-            icon={TrendingUp}
-          />
-          <MetricCard
-            title="Response Rate"
-            value={metrics.response_rate.toFixed(1)}
-            icon={Users}
-            suffix="%"
-          />
-          <MetricCard
-            title="Active Campaigns"
-            value={metrics.active_campaigns}
-            icon={Zap}
-          />
-          <MetricCard
-            title="Top Performer"
-            value={metrics.top_performer}
-            icon={Users}
-          />
-        </div>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2 mb-8">
+            <TabsTrigger value="data">Data Collection</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics & Insights</TabsTrigger>
+          </TabsList>
 
-        {/* Two Column Layout: Chart + Team Members */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Left: Chart */}
-          <Card className="border border-gray-200">
-            <CardHeader>
-              <CardTitle>7-Day MQL Trend</CardTitle>
-              <CardDescription>Daily MQL count over the past week</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={data.result.daily_breakdown}>
-                  <defs>
-                    <linearGradient id="colorMqls" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis
-                    dataKey="date"
-                    stroke="#9ca3af"
-                    style={{ fontSize: '12px' }}
-                  />
-                  <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="mqls"
-                    stroke="#3B82F6"
-                    strokeWidth={3}
-                    dot={{ fill: '#3B82F6', r: 5 }}
-                    activeDot={{ r: 7 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          {/* Right: Team Members List */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Team Members</h3>
-              <Select value={selectedMember} onValueChange={setSelectedMember}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by member" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Team Members</SelectItem>
-                  {data.result.team_members.map((member) => (
-                    <SelectItem key={member.name} value={member.name}>
-                      {member.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {/* Data Collection Tab */}
+          <TabsContent value="data" className="space-y-8">
+            {/* Metrics Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <MetricCard
+                title="Total MQLs"
+                value={metrics.total_mqls}
+                icon={TrendingUp}
+              />
+              <MetricCard
+                title="Response Rate"
+                value={metrics.response_rate.toFixed(1)}
+                icon={Users}
+                suffix="%"
+              />
+              <MetricCard
+                title="Active Campaigns"
+                value={metrics.active_campaigns}
+                icon={Zap}
+              />
+              <MetricCard
+                title="Top Performer"
+                value={metrics.top_performer}
+                icon={Users}
+              />
             </div>
-            <ScrollArea className="h-[400px] pr-4">
-              <div className="space-y-4">
-                {filteredMembers.map((member) => (
-                  <TeamMemberCard key={member.name} member={member} />
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-        </div>
 
-        {/* Non-Respondents Alert */}
-        {data.result.non_respondents.length > 0 && (
-          <Alert className="border-amber-200 bg-amber-50">
-            <AlertCircle className="h-4 w-4 text-amber-600" />
-            <AlertTitle className="text-amber-900">Pending Responses</AlertTitle>
-            <AlertDescription className="text-amber-800">
-              {data.result.non_respondents.join(', ')} {data.result.non_respondents.length === 1 ? 'has' : 'have'} not responded. Reminders sent 2 hours ago.
-            </AlertDescription>
-          </Alert>
-        )}
+            {/* Two Column Layout: Chart + Team Members */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* Left: Chart */}
+              <Card className="border border-gray-200">
+                <CardHeader>
+                  <CardTitle>7-Day MQL Trend</CardTitle>
+                  <CardDescription>Daily MQL count over the past week</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={data.result.daily_breakdown}>
+                      <defs>
+                        <linearGradient id="colorMqls" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
+                          <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis
+                        dataKey="date"
+                        stroke="#9ca3af"
+                        style={{ fontSize: '12px' }}
+                      />
+                      <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="mqls"
+                        stroke="#3B82F6"
+                        strokeWidth={3}
+                        dot={{ fill: '#3B82F6', r: 5 }}
+                        activeDot={{ r: 7 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Right: Team Members List */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Team Members</h3>
+                  <Select value={selectedMember} onValueChange={setSelectedMember}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filter by member" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Team Members</SelectItem>
+                      {data.result.team_members.map((member) => (
+                        <SelectItem key={member.name} value={member.name}>
+                          {member.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <ScrollArea className="h-[400px] pr-4">
+                  <div className="space-y-4">
+                    {filteredMembers.map((member) => (
+                      <TeamMemberCard key={member.name} member={member} />
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            </div>
+
+            {/* Non-Respondents Alert */}
+            {data.result.non_respondents.length > 0 && (
+              <Alert className="border-amber-200 bg-amber-50">
+                <AlertCircle className="h-4 w-4 text-amber-600" />
+                <AlertTitle className="text-amber-900">Pending Responses</AlertTitle>
+                <AlertDescription className="text-amber-800">
+                  {data.result.non_respondents.join(', ')} {data.result.non_respondents.length === 1 ? 'has' : 'have'} not responded. Reminders sent 2 hours ago.
+                </AlertDescription>
+              </Alert>
+            )}
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-8">
+            <AnalyticsInsightsPanel analytics={analytics} />
+          </TabsContent>
+        </Tabs>
       </main>
 
       {/* Chat Panel */}
