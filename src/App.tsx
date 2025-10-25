@@ -79,6 +79,29 @@ interface AgentResponse {
   }
 }
 
+interface AnalyticsResponse {
+  query_answer: string
+  key_metrics: {
+    average_mql_per_member: number
+    growth_rate: number
+    response_time_avg: string
+    campaign_effectiveness: number
+  }
+  performance_analysis: {
+    top_performers: { name: string; score: number }[]
+    under_performing: { name: string; area: string }[]
+    team_trends: string[]
+  }
+  insights: string[]
+  recommendations: string[]
+  confidence: number
+  metadata: {
+    analysis_timestamp: string
+    data_sources: string[]
+    processing_time: string
+  }
+}
+
 // Status color mapping
 const statusColors = {
   submitted: '#10B981',
