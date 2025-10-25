@@ -409,6 +409,75 @@ function ChatPanel({
   )
 }
 
+// Add Employee Dialog Component
+function AddEmployeeDialog() {
+  const [open, setOpen] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+  })
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!formData.name.trim()) return
+
+    setLoading(true)
+    try {
+      // Could integrate with agent or API here
+      // For now, just show success message
+      setFormData({ name: '', email: '' })
+      setOpen(false)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="gap-2">
+          <Users className="h-4 w-4" />
+          Add Employee
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogTitle>Add Team Member</DialogTitle>
+        <DialogDescription>Add a new marketing team member to track their MQLs</DialogDescription>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-sm font-medium text-gray-700">Name</label>
+            <Input
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="John Doe"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700">Email</label>
+            <Input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="john@company.com"
+              className="mt-1"
+            />
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={loading} className="bg-blue-500 hover:bg-blue-600">
+              Add Member
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 // Main App Component
 export default function App() {
   const [data, setData] = useState<AgentResponse>(mockInitialData)
@@ -481,7 +550,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 flex-col sm:flex-row w-full sm:w-auto">
+            <div className="flex items-center gap-3 flex-col sm:flex-row w-full sm:w-auto">
               <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 border border-gray-200 w-full sm:w-auto">
                 <Calendar className="h-4 w-4 text-gray-600" />
                 <Input
@@ -491,6 +560,8 @@ export default function App() {
                   className="bg-transparent border-none p-0 h-auto text-sm"
                 />
               </div>
+
+              <AddEmployeeDialog />
 
               <Button
                 onClick={refreshData}
@@ -557,72 +628,76 @@ export default function App() {
           />
         </div>
 
-        {/* 7-Day Trend Chart */}
-        <Card className="mb-8 border border-gray-200">
-          <CardHeader>
-            <CardTitle>7-Day MQL Trend</CardTitle>
-            <CardDescription>Daily MQL count over the past week</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={data.result.daily_breakdown}>
-                <defs>
-                  <linearGradient id="colorMqls" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis
-                  dataKey="date"
-                  stroke="#9ca3af"
-                  style={{ fontSize: '12px' }}
-                />
-                <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="mqls"
-                  stroke="#3B82F6"
-                  strokeWidth={3}
-                  dot={{ fill: '#3B82F6', r: 5 }}
-                  activeDot={{ r: 7 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        {/* Two Column Layout: Chart + Team Members */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Left: Chart */}
+          <Card className="border border-gray-200">
+            <CardHeader>
+              <CardTitle>7-Day MQL Trend</CardTitle>
+              <CardDescription>Daily MQL count over the past week</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={data.result.daily_breakdown}>
+                  <defs>
+                    <linearGradient id="colorMqls" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis
+                    dataKey="date"
+                    stroke="#9ca3af"
+                    style={{ fontSize: '12px' }}
+                  />
+                  <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#fff',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="mqls"
+                    stroke="#3B82F6"
+                    strokeWidth={3}
+                    dot={{ fill: '#3B82F6', r: 5 }}
+                    activeDot={{ r: 7 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
 
-        {/* Filters */}
-        <div className="flex gap-4 mb-8 flex-col sm:flex-row">
-          <Select value={selectedMember} onValueChange={setSelectedMember}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Filter by member" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Team Members</SelectItem>
-              {data.result.team_members.map((member) => (
-                <SelectItem key={member.name} value={member.name}>
-                  {member.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Team Members Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {filteredMembers.map((member) => (
-            <div key={member.name}>
-              <TeamMemberCard member={member} />
+          {/* Right: Team Members List */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Team Members</h3>
+              <Select value={selectedMember} onValueChange={setSelectedMember}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter by member" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Team Members</SelectItem>
+                  {data.result.team_members.map((member) => (
+                    <SelectItem key={member.name} value={member.name}>
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          ))}
+            <ScrollArea className="h-[400px] pr-4">
+              <div className="space-y-4">
+                {filteredMembers.map((member) => (
+                  <TeamMemberCard key={member.name} member={member} />
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
         </div>
 
         {/* Non-Respondents Alert */}
